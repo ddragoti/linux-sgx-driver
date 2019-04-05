@@ -81,6 +81,7 @@ LIST_HEAD(sgx_tgid_ctx_list);
 DEFINE_MUTEX(sgx_tgid_ctx_mutex);
 atomic_t sgx_va_pages_cnt = ATOMIC_INIT(0);
 static unsigned int sgx_nr_total_epc_pages;
+static unsigned int sgx_nr_reclaimed;
 static unsigned int sgx_nr_free_pages;
 static unsigned int sgx_nr_low_pages = SGX_NR_LOW_EPC_PAGES_DEFAULT;
 static unsigned int sgx_nr_high_pages;
@@ -91,6 +92,7 @@ static struct task_struct *ksgxswapd_tsk;
 static DECLARE_WAIT_QUEUE_HEAD(ksgxswapd_waitq);
 
 module_param(sgx_nr_total_epc_pages, uint, 0440);
+module_param(sgx_nr_reclaimed, uint, 0440);
 module_param(sgx_nr_free_pages, uint, 0440);
 module_param(sgx_nr_low_pages, uint, 0440);
 module_param(sgx_nr_high_pages, uint, 0440);
@@ -357,11 +359,13 @@ static void sgx_write_pages(struct sgx_encl *encl, struct list_head *src)
 		list_del(&entry->list);
 		sgx_evict_page(entry->encl_page, encl);
 		encl->secs_child_cnt--;
+		sgx_nr_reclaimed++;  /*instrumentation*/ 
 	}
 
 	if (!encl->secs_child_cnt && (encl->flags & SGX_ENCL_INITIALIZED)) {
 		sgx_evict_page(&encl->secs, encl);
 		encl->flags |= SGX_ENCL_SECS_EVICTED;
+		sgx_nr_reclaimed++;  /*instrumentation*/ 
 	}
 
 	mutex_unlock(&encl->lock);
