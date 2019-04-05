@@ -9,6 +9,10 @@ METRICS="sgx_nr_total_epc_pages \
     sgx_nr_marked_old \
     sgx_nr_evicted \
     sgx_nr_alloc_pages \
+    sgx_nr_reclaimed \
+    sgx_nr_enclaves \
+    sgx_init_enclaves \
+    sgx_nr_added_pages \
     "
 MODPATH="/sys/module/isgx/parameters/"
 
