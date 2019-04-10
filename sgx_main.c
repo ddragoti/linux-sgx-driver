@@ -159,6 +159,8 @@ static const struct file_operations sgx_fops = {
 };
 
 static struct miscdevice sgx_dev = {
+// .minor	= MISC_DYNAMIC_MINOR,
+	.minor	= 7, /* we need fixed minor device id - conflicts with appolo mouse... include/linux/miscdevice.h */
 	.name	= "isgx",
 	.fops	= &sgx_fops,
 	.mode   = 0666,
