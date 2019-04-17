@@ -67,6 +67,11 @@
 	#include <linux/signal.h>
 #endif
 #include "linux/file.h"
+#include <linux/moduleparam.h>
+
+static unsigned int sgx_nr_enclaves;
+module_param(sgx_nr_enclaves, uint, 0440);
+
 
 struct page *sgx_get_backing(struct sgx_encl *encl,
 			     struct sgx_encl_page *entry,
@@ -434,4 +439,6 @@ void sgx_encl_release(struct kref *ref)
 		fput(encl->pcmd);
 
 	kfree(encl);
+	sgx_nr_enclaves--;  /*instrumentation*/ 
+
 }
