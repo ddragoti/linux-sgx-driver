@@ -67,10 +67,13 @@
 	#include <linux/signal.h>
 #endif
 #include "linux/file.h"
-// #include <linux/moduleparam.h>
+#include <linux/moduleparam.h>
 
-// static unsigned int sgx_nr_enclaves;
-// module_param(sgx_nr_enclaves, uint, 0440);
+static unsigned int sgx_enclaves_released;
+static unsigned int sgx_loaded_back;
+module_param(sgx_enclaves_released, uint, 0440);
+module_param(sgx_loaded_back, uint, 0440);
+
 
 
 struct page *sgx_get_backing(struct sgx_encl *encl,
@@ -241,7 +244,7 @@ static int sgx_eldu(struct sgx_encl *encl,
 		sgx_err(encl, "ELDU returned %d\n", ret);
 		ret = -EFAULT;
 	}
-
+	sgx_loaded_back++; /*instrumentation*/
 	kunmap_atomic((void *)(unsigned long)(pginfo.pcmd - pcmd_offset));
 	kunmap_atomic((void *)(unsigned long)pginfo.srcpge);
 	sgx_put_page(va_ptr);
@@ -439,6 +442,6 @@ void sgx_encl_release(struct kref *ref)
 		fput(encl->pcmd);
 
 	kfree(encl);
-	// sgx_nr_enclaves--;  /*instrumentation*/ 
+	sgx_enclaves_released++;  /*instrumentation*/ 
 
 }
